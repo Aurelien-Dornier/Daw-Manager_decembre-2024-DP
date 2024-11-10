@@ -1,0 +1,163 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum PluginStatus {
+  NOT_INSTALLED
+  INSTALLED
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  BLOCKED
+}
+
+enum UserRole {
+  ADMIN
+  USER
+}
+
+enum TwoFactorStatus {
+  DISABLED
+  PENDING
+  ACTIVE
+}
+
+model User {
+  id               String         @id @default(uuid()) @db.Uuid
+  email            String         @unique
+  passwordHash     String
+  twoFactorSecret  String?
+  twoFactorStatus  TwoFactorStatus @default(DISABLED)
+  lastLogin        DateTime?
+  status           UserStatus      @default(ACTIVE)
+  role             UserRole        @default(USER)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  // Relations
+  profile          Profile?
+  plugins          Plugin[]
+  sessions         Session[]
+  recoveryCodes    RecoveryCode[]
+  auditLogs        AuditLog[]
+
+  @@map("users")
+}
+
+model Profile {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @unique @db.Uuid
+  firstName   String?
+  lastName    String?
+  company     String?
+  phone       String?
+  avatarUrl   String?
+  preferences Json?     @default("{}")
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("profiles")
+}
+
+model Plugin {
+  id                  String        @id @default(uuid()) @db.Uuid
+  userId              String        @db.Uuid
+  name                String
+  vendor              String
+  vendorUrl           String?
+  category            String
+  licenseKey          String
+  licenseKeyEncrypted Boolean       @default(true)
+  downloadUrl         String?
+  purchaseEmail       String
+  purchasePassword    String?
+  status              PluginStatus  @default(NOT_INSTALLED)  
+  notes               String?
+  version             String?
+  purchaseDate        DateTime?
+  expirationDate      DateTime?
+  createdAt           DateTime      @default(now())
+  updatedAt           DateTime      @updatedAt
+
+  // Relations
+  user                User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("plugins")
+}
+
+
+
+model Session {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  token       String
+  ipAddress   String?
+  userAgent   String?
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("sessions")
+}
+
+model AuditLog {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String?   @db.Uuid
+  action      String
+  entityType  String
+  entityId    String?   @db.Uuid
+  oldValues   Json?
+  newValues   Json?
+  ipAddress   String?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@map("audit_logs")
+}
+
+model RecoveryCode {
+  id          String    @id @default(uuid()) @db.Uuid
+  userId      String    @db.Uuid
+  code        String
+  used        Boolean   @default(false)
+  usedAt      DateTime?
+  createdAt   DateTime  @default(now())
+
+  // Relations
+  user        User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("recovery_codes")
+}
+
+model LoginAttempt {
+  id          String    @id @default(uuid()) @db.Uuid
+  ipAddress   String
+  userAgent   String?
+  email       String    
+  success     Boolean   @default(false)
+  createdAt   DateTime  @default(now())
+  expiresAt   DateTime
+
+  @@map("login_attempts")
+  @@index([ipAddress, createdAt])
+}
