@@ -23,7 +23,8 @@ export class AuthService {
       if(!user) {
         return{
           success: false,
-          message: "user not found"
+          message: "user not found",
+          data: null
         };
       }
       return {
@@ -47,7 +48,8 @@ export class AuthService {
       console.error("Fetch user error", error);
       return { 
         success: false,
-        message: "Failed to fetch user"
+        message: "Failed to fetch user",
+        data: null
       };
     }
   }
@@ -62,6 +64,7 @@ export class AuthService {
         return {
           success: false,
           message: "User already exists",
+          data: null
         };
       }
 
@@ -108,7 +111,8 @@ export class AuthService {
       console.error("Registration error:", error);
       return {
         success: false,
-        message: "Registration failed"
+        message: "Registration failed",
+        data: null
       };
     }
   }
@@ -123,14 +127,16 @@ static async login(ctx: Context, dto: LoginDto): Promise<AuthResponse> {
     if (!user) {
       return {
         success: false,
-        message: "User not found"
+        message: "User not found",
+        data: null
       };
     }
 
     if (user.status === "BLOCKED") {
       return {
         success: false,
-        message: "User blocked"
+        message: "User blocked",
+        data: null
       };
     }
 
@@ -138,7 +144,8 @@ static async login(ctx: Context, dto: LoginDto): Promise<AuthResponse> {
     if (!isPasswordValid) {
       return {
         success: false,
-        message: "Invalid password"
+        message: "Invalid password",
+        data: null
       };
     }
 
@@ -182,7 +189,8 @@ static async login(ctx: Context, dto: LoginDto): Promise<AuthResponse> {
     console.error("Login error:", error);
     return {
       success: false,
-      message: "Login failed"
+      message: "Login failed",
+      data: null
     };
   }
 }
@@ -203,13 +211,15 @@ static async login(ctx: Context, dto: LoginDto): Promise<AuthResponse> {
       }
       return {
         success: true,
-        message: "User logged out successfully"
+        message: "User logged out successfully",
+        data: null
       }
     } catch (error) {
       console.error("Logout error:", error);
       return {
         success: false,
-        message: "Logout failed"
+        message: "Logout failed",
+        data : null
       }
     }
 

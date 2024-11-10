@@ -16,7 +16,7 @@ async function generateUsers() {
         lastName: 'Onizuka',
         company: 'Admin Corp',
         phone: '+33123456789'
-      },©
+      },
       plugins: [
         {
           name: 'Admin Plugin 1',
