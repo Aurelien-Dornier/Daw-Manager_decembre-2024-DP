@@ -224,7 +224,6 @@ static async login(ctx: Context, dto: LoginDto): Promise<AuthResponse> {
     }
 
   }
-
   
   static async setup2FA(userId: string): Promise<{ qrCode: string; secret: string }> {
     // * generer le secret
@@ -255,7 +254,6 @@ static async login(ctx: Context, dto: LoginDto): Promise<AuthResponse> {
     return { qrCode, secret };
   }
 
-
   static async verify2FA(userId: string, token: string): Promise<boolean> {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -285,8 +283,6 @@ static async login(ctx: Context, dto: LoginDto): Promise<AuthResponse> {
     return isValid;
   }
 
- 
- 
   private static async generateRecoveryCodes(userId: string, count = 10): Promise<void> {
     const codes = Array.from({ length: count }, () =>
       Math.random().toString(36).substring(2, 8).toUpperCase()
