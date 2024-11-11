@@ -19,6 +19,5 @@ export const authSchema = {
 
   check2FAStatus: z.object({}),
 
-  me: z.object({}).strict(),
 } as const;
  

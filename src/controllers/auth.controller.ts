@@ -29,7 +29,7 @@ export const AuthController = {
    * Rpute pour recuperer un user.
    */
   me: [
-    validate(authSchema.me),
+  
     async (ctx: Context) => {
       const response = await AuthService.fetchUser(ctx.state.user.id);
       ctx.status = response.success ? 200 : 400;
